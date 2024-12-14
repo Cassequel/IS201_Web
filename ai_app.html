@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aiden Swanson | Snake Game</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(120deg, #2d2d2d, #121212);
+        color: #fff;
+        font-family: Arial, sans-serif;
+        height: 100vh;
+        margin: 0;
+      }
+      h1 {
+        margin: 10px 0;
+      }
+      p {
+        margin: 5px 0 20px;
+      }
+      canvas {
+        border: 2px solid #fff;
+        background: #333;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+      }
+      a {
+        text-decoration: none;
+        color: white;
+      }
+      a:visited {
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Snake Game</h1>
+    <p>Use arrow keys to move the snake. Eat food to grow!</p>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <script>
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const boxSize = 20; // Size of each box in the grid
+      const rows = canvas.height / boxSize;
+      const cols = canvas.width / boxSize;
+
+      let snake, food, direction, isGameOver, hasMoved;
+
+      // Initialize game variables
+      function initGame() {
+        snake = [{ x: 10, y: 10 }]; // Start snake in the center
+        food = { x: getRandomInt(0, cols), y: getRandomInt(0, rows) }; // Random food position
+        direction = { x: 0, y: 0 }; // Snake starts stationary
+        isGameOver = false;
+        hasMoved = false; // Snake must move to start checking collisions
+      }
+
+      // Utility to get a random integer between min and max
+      function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
+      }
+
+      // Draw the game board, snake, and food
+      function draw() {
+        ctx.fillStyle = "#333";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the snake
+        snake.forEach((segment, index) => {
+          ctx.fillStyle = index === 0 ? "lime" : "green";
+          ctx.fillRect(
+            segment.x * boxSize,
+            segment.y * boxSize,
+            boxSize,
+            boxSize
+          );
+          ctx.strokeStyle = "#000";
+          ctx.strokeRect(
+            segment.x * boxSize,
+            segment.y * boxSize,
+            boxSize,
+            boxSize
+          );
+        });
+
+        // Draw the food
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x * boxSize, food.y * boxSize, boxSize, boxSize);
+      }
+
+      // Update the snake and game state
+      function update() {
+        if (isGameOver) return;
+
+        // If the snake hasn't moved, skip collision checks
+        if (!hasMoved) return;
+
+        // Calculate the new head position
+        const newHead = {
+          x: snake[0].x + direction.x,
+          y: snake[0].y + direction.y,
+        };
+
+        // Check for collisions with the wall or self
+        if (
+          newHead.x < 0 ||
+          newHead.x >= cols ||
+          newHead.y < 0 ||
+          newHead.y >= rows ||
+          snake.some(
+            (segment) => segment.x === newHead.x && segment.y === newHead.y
+          )
+        ) {
+          isGameOver = true;
+          alert("I did edit this code. Don't Worry. It's Game Over Tho");
+          initGame();
+          return;
+        }
+
+        // Add the new head to the snake
+        snake.unshift(newHead);
+
+        // Check if the snake eats the food
+        if (newHead.x === food.x && newHead.y === food.y) {
+          food = { x: getRandomInt(0, cols), y: getRandomInt(0, rows) }; // Place new food
+        } else {
+          snake.pop(); // Remove the tail if no food is eaten
+        }
+      }
+
+      // Handle keypresses to control the snake
+      window.addEventListener("keydown", (e) => {
+        const { x, y } = direction;
+        if (e.key === "ArrowUp" && y === 0) direction = { x: 0, y: -1 };
+        if (e.key === "ArrowDown" && y === 0) direction = { x: 0, y: 1 };
+        if (e.key === "ArrowLeft" && x === 0) direction = { x: -1, y: 0 };
+        if (e.key === "ArrowRight" && x === 0) direction = { x: 1, y: 0 };
+
+        // Set hasMoved to true after the first key press
+        hasMoved = true;
+      });
+
+      // Game loop
+      function gameLoop() {
+        update();
+        draw();
+        setTimeout(gameLoop, 100);
+      }
+
+      // Start the game
+      initGame();
+      gameLoop();
+    </script>
+    <a href="scratch.html" style="margin-top: 20px"> Scratch Page</a>
+  </body>
+</html>
